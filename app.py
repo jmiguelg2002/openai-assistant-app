@@ -9,8 +9,8 @@ import base64
 
 st.set_page_config(page_title="OpenAI Assistant", layout="wide")
 st.title("🤖 OpenAI Assistant: Prompt + Files + GPT-4 Vision")
-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
-client = OpenAI(api_key=os.getenv(""))
+
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 prompt = st.text_area("📝 Enter your prompt", height=150)
 uploaded_image = st.file_uploader("🖼️ Upload an image (PNG, JPG, JPEG)", type=["png", "jpg", "jpeg"])
