@@ -6,10 +6,9 @@ import os
 import docx
 import pandas as pd
 import base64
-import io
 
 st.set_page_config(page_title="OpenAI Assistant", layout="wide")
-st.title("🤖 OpenAI Assistant: Prompt + Files + GPT-4 Vision")
+st.title("🤖 OpenAI Assistant: Prompt + Files + GPT-4o")
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
@@ -35,19 +34,6 @@ def extract_file_text(file):
         text = df.to_string(index=False)
     return text
 
-# ✅ Ensures the uploaded image is valid and re-encoded as PNG
-def encode_image_to_base64(uploaded_image):
-    try:
-        image = Image.open(uploaded_image)
-        buffered = io.BytesIO()
-        image.save(buffered, format="PNG")
-        buffered.seek(0)
-        encoded = base64.b64encode(buffered.read()).decode("utf-8")
-        return f"data:image/png;base64,{encoded}"
-    except Exception as e:
-        st.error(f"⚠️ Error processing image: {e}")
-        return None
-
 if uploaded_image:
     image_display = Image.open(uploaded_image)
     st.image(image_display, caption="🖼️ Uploaded Image", use_container_width=True)
@@ -56,15 +42,16 @@ if uploaded_file:
     file_text = extract_file_text(uploaded_file)
     st.text_area("📄 Extracted File Content", value=file_text, height=200)
 
+def encode_image_to_base64(uploaded_file):
+    encoded = base64.b64encode(uploaded_file.read()).decode("utf-8")
+    mime_type = uploaded_file.type or "image/jpeg"
+    return f"data:{mime_type};base64,{encoded}"
+
 if st.button("🚀 Submit to OpenAI"):
     try:
         if uploaded_image:
             image_base64_url = encode_image_to_base64(uploaded_image)
-            if not image_base64_url:
-                st.error("❌ Failed to encode image.")
-                st.stop()
-
-            messages = [{
+            messages = [ {
                 "role": "user",
                 "content": [
                     {"type": "text", "text": prompt + "\n\n" + file_text},
@@ -73,14 +60,13 @@ if st.button("🚀 Submit to OpenAI"):
                         "detail": "high"
                     }}
                 ]
-            }]
-            model = "gpt-4o"  # ✅ Use GPT-4o or current model
+            } ]
         else:
-            messages = [{"role": "user", "content": prompt + "\n\n" + file_text}]
-            model = "gpt-4"
+            messages = [ { "role": "user", "content": prompt + "\n\n" + file_text } ]
 
+        # ✅ Use latest vision-capable model
         response = client.chat.completions.create(
-            model=model,
+            model="gpt-4o",
             messages=messages,
             max_tokens=1000
         )
@@ -90,6 +76,7 @@ if st.button("🚀 Submit to OpenAI"):
 
     except Exception as e:
         st.error(f"❌ Error: {e}")
+
 
 
 
