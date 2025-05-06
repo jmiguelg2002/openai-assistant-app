@@ -1,6 +1,7 @@
-streamlit
+sstreamlit
 openai
-pillow
-python-docx
+Pillow
 PyMuPDF
+python-docx
 pandas
+openpyxl
