@@ -4,4 +4,3 @@ Pillow
 PyMuPDF
 python-docx
 pandas
-openpyxl
